@@ -70,7 +70,7 @@ case $SOURCE in
       httpd-foreground
       ;;
 
-  #GET5ETOOLS | GET5ETOOLS-NOIMG)
+  GET5ETOOLS | GET5ETOOLS-NOIMG)
     DL_LINK=https://get.5e.tools
     echo " === Using get structure to download from $DL_LINK"
       echo " === WARNING: This part of the script has not yet been tested. Please open an issue on the github if you have trouble."
