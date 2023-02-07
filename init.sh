@@ -1,6 +1,4 @@
 #!/bin/bash
-# based (loosely) on: https://wiki.5e.tools/index.php/5eTools_Install_Guide
-
 # Ensure clean, non-root ownership of the htdocs directory.
 # Delete index.html if it's the stock apache file. Otherwise it impedes the git clone.
 chown -R $PUID:$PGID /usr/local/apache2/htdocs
@@ -44,8 +42,8 @@ case $SOURCE in
     echo " === Using GitHub mirror at $DL_LINK"
       if [ ! -d "./.git" ]; then # if no git repository already exists
         echo " === No existing git repository, creating one"
-        git config --global user.email "autodeploy@jafner.tools"
-        git config --global user.name "AutoDeploy"
+        git config --global user.email "example@example.com"
+        git config --global user.name "example"
         git config --global pull.rebase false # Squelch nag message
         git clone --filter=blob:none --no-checkout $DL_LINK . # clone the repo with no files and no object history
         git config core.sparseCheckout true # enable sparse checkout
@@ -53,13 +51,8 @@ case $SOURCE in
       else
         echo " === Using existing git repository"
       fi
-      if [[ "$SOURCE" == *"NOIMG"* ]]; then # if user does not want images
-        echo -e '/*\n!img' > .git/info/sparse-checkout # sparse checkout should include everything except the img directory
-        echo " === Pulling from GitHub without images..."
-      else
-        echo -e '/*' > .git/info/sparse-checkout # sparse checkout should include everything
-        echo " === Pulling from GitHub with images... (This will take a while)"
-      fi
+      echo -e '/*' > .git/info/sparse-checkout # sparse checkout should include everything
+      echo " === Pulling from GitHub with images... (This will take a while)"
       git checkout
       git fetch
       git pull
@@ -85,22 +78,11 @@ case $SOURCE in
         cd ./download/
         curl --progress-bar -k -O -J $DL_LINK/src/ -C -
         
-        if [ "$SOURCE" != *"NOIMG"* ]; then # download images
-          echo " === Downloading images... "
-          curl --progress-bar -k -O -J $DL_LINK/img/ -C -
-        fi
         
         cd ..
 
         echo " === Extracting site..."
         7z x ./download/$FILENAME -o./ -y
-
-        if [ "$SOURCE" != *"NOIMG"* ]; then # extract images
-          echo " === Extracting images..."
-          7z x ./download/$FILENAME_IMG -o./img -y
-          mv ./img/tmp/5et/img/* ./img
-          rm -r ./img/tmp
-        fi
 
         echo " === Configuring..." # honestly I don't know enough HTML/CSS/JS to tell exactly what this part of the script does :L
         find . -name \*.html -exec sed -i 's/"width=device-width, initial-scale=1"/"width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/' {} \;
