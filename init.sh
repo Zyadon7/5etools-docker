@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # Ensure clean, non-root ownership of the htdocs directory.
 # Delete index.html if it's the stock apache file. Otherwise it impedes the git clone.
 chown -R $PUID:$PGID /usr/local/apache2/htdocs
@@ -42,6 +43,8 @@ case $SOURCE in
     echo " === Using GitHub mirror at $DL_LINK"
       if [ ! -d "./.git" ]; then # if no git repository already exists
         echo " === No existing git repository, creating one"
+        git config --global user.email "example@example.com"
+        git config --global user.name "example"
         git config --global pull.rebase false # Squelch nag message
         git clone --filter=blob:none --no-checkout $DL_LINK . # clone the repo with no files and no object history
         git config core.sparseCheckout true # enable sparse checkout
@@ -49,13 +52,16 @@ case $SOURCE in
       else
         echo " === Using existing git repository"
       fi
-      if [[ "$SOURCE" == *"NOIMG"* ]]; then # if user does not want images
-        echo -e '/*\n!img' > .git/info/sparse-checkout # sparse checkout should include everything except the img directory
-        echo " === Pulling from GitHub without images..."
-      else
-        echo -e '/*' > .git/info/sparse-checkout # sparse checkout should include everything
-        echo " === Pulling from GitHub with images... (This will take a while)"
-      fi
+      #if [[ "$SOURCE" == *"NOIMG"* ]]; then # if user does not want images
+      #  echo -e '/*\n!img' > .git/info/sparse-checkout # sparse checkout should include everything except the img directory
+      #  echo " === Pulling from GitHub without images..."
+      #else
+      #  echo -e '/*' > .git/info/sparse-checkout # sparse checkout should include everything
+      #  echo " === Pulling from GitHub with images... (This will take a while)"
+      #fi
+      echo -e '/*' > .git/info/sparse-checkout # sparse checkout should include everything
+      echo " === Pulling from GitHub with images... (This will take a while)"
+      
       git checkout
       git fetch
       git pull
@@ -64,7 +70,7 @@ case $SOURCE in
       httpd-foreground
       ;;
 
-  GET5ETOOLS | GET5ETOOLS-NOIMG)
+  #GET5ETOOLS | GET5ETOOLS-NOIMG)
     DL_LINK=https://get.5e.tools
     echo " === Using get structure to download from $DL_LINK"
       echo " === WARNING: This part of the script has not yet been tested. Please open an issue on the github if you have trouble."
@@ -91,14 +97,14 @@ case $SOURCE in
         echo " === Extracting site..."
         7z x ./download/$FILENAME -o./ -y
 
-        if [ "$SOURCE" != *"NOIMG"* ]; then # extract images
-          echo " === Extracting images..."
-          7z x ./download/$FILENAME_IMG -o./img -y
-          mv ./img/tmp/5et/img/* ./img
-          rm -r ./img/tmp
-        fi
+        #if [ "$SOURCE" != *"NOIMG"* ]; then # extract images
+        #  echo " === Extracting images..."
+        #  7z x ./download/$FILENAME_IMG -o./img -y
+        #  mv ./img/tmp/5et/img/* ./img
+        #  rm -r ./img/tmp
+        #fi
 
-        echo " === Configuring..." # honestly I don't know enough HTML/CSS/JS to tell exactly what this part of the script does :L
+        echo " === Configuring..." 
         find . -name \*.html -exec sed -i 's/"width=device-width, initial-scale=1"/"width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/' {} \;
         sed -i 's/<head>/<head>\n<link rel="apple-touch-icon" href="icon\/icon-512.png">/' index.html
         sed -i 's/navigator.serviceWorker.register("\/sw.js/navigator.serviceWorker.register("sw.js/' index.html
