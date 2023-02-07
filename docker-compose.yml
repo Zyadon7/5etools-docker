@@ -2,13 +2,13 @@ version: "3"
 services:
   5etools-docker:
     container_name: 5etools
-    image: Zyadon7/5etools
+    image: Zyadon7/5etools-docker
     volumes:
       - 5etools:/usr/local/apache2/htdocs
     ports:
-     - 8080:80/tcp
+     - 6712:80/tcp
     environment:
-     - SOURCE=GITHUB-NOIMG
+     - SOURCE=GITHUB
        # Required unless OFFLINE_MODE=TRUE
        # Expects one of GITHUB, GITHUB-NOIMG, GET5ETOOLS, or GET5ETOOLS-NOIMG. Where:
        # GITHUB pulls from https://github.com/5etools-mirror-1/5etools-mirror-1
