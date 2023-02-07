@@ -1,10 +1,10 @@
 version: "3"
 services:
   5etools-docker:
-    container_name: 5etools-docker
-    image: jafner/5etools-docker
+    container_name: 5etools
+    image: Zyadon7/5etools
     volumes:
-      - 5etools-docker:/usr/local/apache2/htdocs
+      - 5etools:/usr/local/apache2/htdocs
     ports:
      - 8080:80/tcp
     environment:
@@ -21,4 +21,4 @@ services:
        # Optional. Expects "TRUE" or "FALSE". 
 
 volumes:
-  5etools-docker:
+  5etools:
